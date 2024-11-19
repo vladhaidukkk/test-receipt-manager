@@ -1,8 +1,11 @@
 default: fmt fix
 
 # Startup commands
-serve:
-    uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+up *params:
+    docker compose -f compose.yaml up {{params}}
+
+serve host="127.0.0.1" port="8000":
+    uv run uvicorn app.main:app --host {{host}} --port {{port}} --reload
 
 # Code quality commands
 fmt:
