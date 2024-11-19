@@ -1,8 +1,12 @@
-from fastapi import APIRouter, HTTPException, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
 from app.db.queries import add_user, get_user_by_email
+from app.deps import get_current_user
 from app.errors import UserAlreadyExistsError
+from app.models import User
 from app.utils.jwt_utils import create_access_token
 from app.utils.password_utils import hash_password, verify_password
 
@@ -35,7 +39,7 @@ async def register(data: UserRegister) -> Token:
             detail="User already registered",
         )
 
-    access_token = create_access_token({"sub": user.id})
+    access_token = create_access_token({"sub": str(user.id)})
     return Token(access_token=access_token)
 
 
@@ -46,18 +50,22 @@ class UserLogin(BaseModel):
 
 @router.post("/login")
 async def login(data: UserLogin) -> Token:
-    unauthorized_error = HTTPException(
+    validation_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Incorrect email or password",
-        headers={"WWW-Authenticate": "Bearer"},
     )
 
     user = await get_user_by_email(email=data.email)
     if not user:
-        raise unauthorized_error
+        raise validation_error
 
     if not verify_password(data.password, user.password_hash):
-        raise unauthorized_error
+        raise validation_error
 
-    access_token = create_access_token({"sub": user.id})
+    access_token = create_access_token({"sub": str(user.id)})
     return Token(access_token=access_token)
+
+
+@router.get("/me")
+async def me(current_user: Annotated[User, Depends(get_current_user)]) -> User:
+    return current_user

@@ -20,6 +20,12 @@ async def add_user(session: AsyncSession, *, name: str, email: str, password_has
 
 
 @inject_session
+async def get_user_by_id(session: AsyncSession, *, id_: int) -> UserModel | None:
+    query = select(UserModel).filter_by(id=id_)
+    return await session.scalar(query)
+
+
+@inject_session
 async def get_user_by_email(session: AsyncSession, *, email: str) -> UserModel | None:
     query = select(UserModel).filter_by(email=email)
     return await session.scalar(query)
