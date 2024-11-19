@@ -28,7 +28,7 @@ async def get_current_user(bearer_token: Annotated[str, Header(alias="Authorizat
     if not user:
         raise creds_error
 
-    return User(id=user.id, name=user.name, email=user.email)
+    return user
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]

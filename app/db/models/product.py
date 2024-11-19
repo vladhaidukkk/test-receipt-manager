@@ -19,4 +19,4 @@ class ProductModel(ModelBase):
     quantity: Mapped[int]
     receipt_id: Mapped[int] = mapped_column(ForeignKey("receipts.id"))
 
-    receipt: Mapped["ReceiptModel"] = relationship(back_populates="payment")
+    receipt: Mapped["ReceiptModel"] = relationship(back_populates="products")

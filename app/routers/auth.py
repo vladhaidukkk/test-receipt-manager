@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 from app.db.queries import add_user, get_user_by_email
 from app.deps import CurrentUser
 from app.errors import UserAlreadyExistsError
-from app.models import User, UserLogin, UserRegister, UserToken
+from app.models import User, UserCreate, UserLogin, UserRead, UserRegister, UserToken
 from app.utils.jwt_utils import create_access_token
 from app.utils.password_utils import hash_password, verify_password
 
@@ -15,9 +15,11 @@ async def register(data: UserRegister) -> UserToken:
     try:
         password_hash = hash_password(data.password)
         user = await add_user(
-            name=data.name,
-            email=data.email,
-            password_hash=password_hash,
+            data=UserCreate(
+                name=data.name,
+                email=data.email,
+                password_hash=password_hash,
+            )
         )
     except UserAlreadyExistsError:
         raise HTTPException(
@@ -47,6 +49,6 @@ async def login(data: UserLogin) -> UserToken:
     return UserToken(access_token=access_token)
 
 
-@router.get("/me")
+@router.get("/me", response_model=UserRead)
 async def me(current_user: CurrentUser) -> User:
     return current_user
