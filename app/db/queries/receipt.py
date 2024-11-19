@@ -71,14 +71,17 @@ async def get_receipts(
 
 
 @inject_session
-async def get_receipt_by_id(session: AsyncSession, *, user_id: int, id_: int) -> Receipt | None:
+async def get_receipt_by_id(session: AsyncSession, *, user_id: int | None = None, id_: int) -> Receipt | None:
     query = (
         select(ReceiptModel)
-        .filter_by(user_id=user_id, id=id_)
+        .filter_by(id=id_)
         .options(
             joinedload(ReceiptModel.products),
             selectinload(ReceiptModel.payment),
         )
     )
+    if user_id:
+        query = query.filter_by(user_id=user_id)
+
     receipt = await session.scalar(query)
     return Receipt.model_validate(receipt) if receipt else None
