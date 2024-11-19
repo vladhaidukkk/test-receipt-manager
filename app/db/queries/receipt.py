@@ -1,10 +1,10 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import contains_eager, joinedload, selectinload
 
 from app.db.core import inject_session
 from app.db.models import PaymentModel, ProductModel, ReceiptModel
-from app.models import Receipt, ReceiptCreate
+from app.models import PaymentType, Receipt, ReceiptCreate
 
 
 @inject_session
@@ -22,15 +22,22 @@ async def add_receipt(session: AsyncSession, *, user_id: int, data: ReceiptCreat
 
 
 @inject_session
-async def get_receipts(session: AsyncSession, *, user_id: int) -> list[Receipt]:
+async def get_receipts(
+    session: AsyncSession, *, user_id: int, payment_type: PaymentType | None = None
+) -> list[Receipt]:
     query = (
         select(ReceiptModel)
         .filter_by(user_id=user_id)
+        .join(ReceiptModel.products)
+        .join(ReceiptModel.payment)
         .options(
-            joinedload(ReceiptModel.products),
-            selectinload(ReceiptModel.payment),
+            contains_eager(ReceiptModel.products),
+            contains_eager(ReceiptModel.payment),
         )
     )
+    if payment_type:
+        query = query.filter(PaymentModel.type == payment_type)
+
     receipts = await session.scalars(query)
     return [Receipt.model_validate(receipt) for receipt in receipts.unique()]
 

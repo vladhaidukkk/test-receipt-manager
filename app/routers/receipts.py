@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from app.db.queries import add_receipt, get_receipt_by_id, get_receipts
 from app.deps import CurrentUser
-from app.models import Receipt, ReceiptCreate, ReceiptRead
+from app.models import PaymentType, Receipt, ReceiptCreate, ReceiptRead
 
 router = APIRouter(tags=["Receipts"])
 
@@ -13,8 +13,8 @@ async def create_receipt(current_user: CurrentUser, data: ReceiptCreate) -> Rece
 
 
 @router.get("", response_model=list[ReceiptRead])
-async def read_receipts(current_user: CurrentUser) -> list[Receipt]:
-    return await get_receipts(user_id=current_user.id)
+async def read_receipts(current_user: CurrentUser, payment_type: PaymentType | None = None) -> list[Receipt]:
+    return await get_receipts(user_id=current_user.id, payment_type=payment_type)
 
 
 @router.get("/{receipt_id}", response_model=ReceiptRead)
