@@ -6,7 +6,7 @@ from app.db.queries import add_receipt, get_receipt_by_id, get_receipts
 from app.deps import CurrentUser
 from app.models import PaymentType, Receipt, ReceiptCreate, ReceiptRead
 
-router = APIRouter(tags=["Receipts"])
+router = APIRouter(tags=["Receipts API"])
 
 
 @router.post("", response_model=ReceiptRead)

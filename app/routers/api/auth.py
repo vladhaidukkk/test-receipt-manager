@@ -7,7 +7,7 @@ from app.models import User, UserCreate, UserLogin, UserRead, UserRegister, User
 from app.utils.jwt_utils import create_access_token
 from app.utils.password_utils import hash_password, verify_password
 
-router = APIRouter(tags=["Auth"])
+router = APIRouter(tags=["Auth API"])
 
 
 @router.post("/register")

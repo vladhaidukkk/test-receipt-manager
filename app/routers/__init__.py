@@ -1,2 +1,2 @@
-from .auth import router as auth_router
-from .receipts import router as receipts_router
+from .api import router as api_router
+from .views import router as views_router

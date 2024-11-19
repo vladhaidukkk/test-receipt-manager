@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from app.routers import auth_router, receipts_router
+from app.routers import api_router, views_router
 
 app = FastAPI()
 
-app.include_router(auth_router, prefix="/auth")
-app.include_router(receipts_router, prefix="/receipts")
+app.include_router(api_router, prefix="/api")
+app.include_router(views_router)
