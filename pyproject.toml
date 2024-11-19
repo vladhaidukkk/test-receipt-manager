@@ -9,7 +9,9 @@ dependencies = [
   "asyncpg>=0.30.0",
   "fastapi>=0.115.5",
   "inflect>=7.4.0",
+  "passlib[bcrypt]>=1.7.4",
   "pydantic-settings>=2.6.1",
+  "pyjwt>=2.10.0",
   "sqlalchemy[asyncio]>=2.0.36",
   "uvicorn>=0.32.0",
 ]
