@@ -19,3 +19,13 @@ lint:
 
 fix:
     uv run ruff check --fix
+
+# Migrations management commands
+revise msg:
+    uv run alembic revision --autogenerate -m "{{msg}}"
+
+migrate target="head":
+    uv run alembic upgrade {{target}}
+
+revert target="-1":
+    uv run alembic downgrade {{target}}
