@@ -4,7 +4,11 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+  "fastapi>=0.115.5",
+  "pydantic-settings>=2.6.1",
+  "uvicorn>=0.32.0",
+]
 
 [dependency-groups]
 dev = ["pre-commit>=4.0.1", "ruff>=0.7.4"]

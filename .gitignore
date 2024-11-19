@@ -16,6 +16,9 @@ Thumbs.db
 # Virtual environments
 .venv/
 
+# Environment variables
+.env
+
 # Cache directories and files
 __pycache__/
 *.py[cod]
