@@ -1,3 +1,5 @@
+import datetime as dt
+
 from fastapi import APIRouter, HTTPException, status
 
 from app.db.queries import add_receipt, get_receipt_by_id, get_receipts
@@ -13,8 +15,18 @@ async def create_receipt(current_user: CurrentUser, data: ReceiptCreate) -> Rece
 
 
 @router.get("", response_model=list[ReceiptRead])
-async def read_receipts(current_user: CurrentUser, payment_type: PaymentType | None = None) -> list[Receipt]:
-    return await get_receipts(user_id=current_user.id, payment_type=payment_type)
+async def read_receipts(
+    current_user: CurrentUser,
+    date_from: dt.datetime | None = None,
+    min_total: int | None = None,
+    payment_type: PaymentType | None = None,
+) -> list[Receipt]:
+    return await get_receipts(
+        user_id=current_user.id,
+        date_from=date_from,
+        min_total=min_total,
+        payment_type=payment_type,
+    )
 
 
 @router.get("/{receipt_id}", response_model=ReceiptRead)

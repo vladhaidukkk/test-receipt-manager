@@ -1,3 +1,6 @@
+import datetime as dt
+from decimal import Decimal
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
@@ -23,7 +26,12 @@ async def add_receipt(session: AsyncSession, *, user_id: int, data: ReceiptCreat
 
 @inject_session
 async def get_receipts(
-    session: AsyncSession, *, user_id: int, payment_type: PaymentType | None = None
+    session: AsyncSession,
+    *,
+    user_id: int,
+    date_from: dt.datetime | None = None,
+    min_total: Decimal | None = None,
+    payment_type: PaymentType | None = None,
 ) -> list[Receipt]:
     query = (
         select(ReceiptModel)
@@ -35,11 +43,19 @@ async def get_receipts(
             contains_eager(ReceiptModel.payment),
         )
     )
+    if date_from:
+        query = query.filter(ReceiptModel.created_at >= date_from)
     if payment_type:
         query = query.filter(PaymentModel.type == payment_type)
 
     receipts = await session.scalars(query)
-    return [Receipt.model_validate(receipt) for receipt in receipts.unique()]
+    receipts = [Receipt.model_validate(receipt) for receipt in receipts.unique()]
+
+    # This can be optimized by adding a filter in the query itself.
+    if min_total:
+        receipts = [receipt for receipt in receipts if receipt.total >= min_total]
+
+    return receipts
 
 
 @inject_session
