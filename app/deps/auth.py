@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 from jwt import InvalidTokenError
 
 from app.db.queries import get_user_by_id
@@ -29,3 +29,6 @@ async def get_current_user(bearer_token: Annotated[str, Header(alias="Authorizat
         raise creds_error
 
     return User(id=user.id, name=user.name, email=user.email)
+
+
+CurrentUser = Annotated[User, Depends(get_current_user)]
