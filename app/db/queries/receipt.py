@@ -1,7 +1,7 @@
 import datetime as dt
 from decimal import Decimal
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
 
@@ -33,29 +33,36 @@ async def get_receipts(
     min_total: Decimal | None = None,
     payment_type: PaymentType | None = None,
 ) -> list[Receipt]:
-    query = (
-        select(ReceiptModel)
-        .filter_by(user_id=user_id)
+    filtered_receipts_query = (
+        select(ReceiptModel.id.label("receipt_id"))
         .join(ReceiptModel.products)
         .join(ReceiptModel.payment)
-        .options(
-            contains_eager(ReceiptModel.products),
-            contains_eager(ReceiptModel.payment),
-        )
+        .filter(ReceiptModel.user_id == user_id)
+        .group_by(ReceiptModel.id)
     )
+
     if date_from:
-        query = query.filter(ReceiptModel.created_at >= date_from)
+        filtered_receipts_query = filtered_receipts_query.filter(ReceiptModel.created_at >= date_from)
+    if min_total:
+        filtered_receipts_query = filtered_receipts_query.having(
+            func.sum(ProductModel.price * ProductModel.quantity) >= min_total
+        )
     if payment_type:
-        query = query.filter(PaymentModel.type == payment_type)
+        filtered_receipts_query = filtered_receipts_query.filter(PaymentModel.type == payment_type)
+
+    filtered_receipts_cte = filtered_receipts_query.cte("filtered_receipts")
+    query = (
+        select(ReceiptModel)
+        .join(filtered_receipts_cte, ReceiptModel.id == filtered_receipts_cte.c.receipt_id)
+        .options(
+            joinedload(ReceiptModel.products),
+            selectinload(ReceiptModel.payment),
+        )
+        .order_by(ReceiptModel.created_at.desc())
+    )
 
     receipts = await session.scalars(query)
-    receipts = [Receipt.model_validate(receipt) for receipt in receipts.unique()]
-
-    # This can be optimized by adding a filter in the query itself.
-    if min_total:
-        receipts = [receipt for receipt in receipts if receipt.total >= min_total]
-
-    return receipts
+    return [Receipt.model_validate(receipt) for receipt in receipts.unique()]
 
 
 @inject_session
