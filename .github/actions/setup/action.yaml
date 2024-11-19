@@ -1,0 +1,14 @@
+name: Install `uv` & `just`
+description: Install `uv` & `just` binaries using community actions
+runs:
+  using: composite
+  steps:
+    - name: Install `uv`
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "0.5.2"
+
+    - name: Install `just`
+      uses: extractions/setup-just@v2
+      with:
+        just-version: 1.36.0
