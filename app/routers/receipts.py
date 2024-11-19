@@ -20,12 +20,14 @@ async def read_receipts(
     date_from: dt.datetime | None = None,
     min_total: int | None = None,
     payment_type: PaymentType | None = None,
+    offset: int | None = None,
 ) -> list[Receipt]:
     return await get_receipts(
         user_id=current_user.id,
         date_from=date_from,
         min_total=min_total,
         payment_type=payment_type,
+        offset=offset,
     )
 
 

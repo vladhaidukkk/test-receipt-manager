@@ -32,25 +32,30 @@ async def get_receipts(
     date_from: dt.datetime | None = None,
     min_total: Decimal | None = None,
     payment_type: PaymentType | None = None,
+    offset: int | None = None,
 ) -> list[Receipt]:
-    filtered_receipts_query = (
+    # Filters are applied to this CTE, as it has no duplicates -> offset works correctly.
+    filtered_receipts_cte = (
         select(ReceiptModel.id.label("receipt_id"))
         .join(ReceiptModel.products)
         .join(ReceiptModel.payment)
         .filter(ReceiptModel.user_id == user_id)
-        .group_by(ReceiptModel.id)
+        .group_by(ReceiptModel.id, ReceiptModel.created_at)
+        .order_by(ReceiptModel.created_at.desc())
     )
 
     if date_from:
-        filtered_receipts_query = filtered_receipts_query.filter(ReceiptModel.created_at >= date_from)
+        filtered_receipts_cte = filtered_receipts_cte.filter(ReceiptModel.created_at >= date_from)
     if min_total:
-        filtered_receipts_query = filtered_receipts_query.having(
+        filtered_receipts_cte = filtered_receipts_cte.having(
             func.sum(ProductModel.price * ProductModel.quantity) >= min_total
         )
     if payment_type:
-        filtered_receipts_query = filtered_receipts_query.filter(PaymentModel.type == payment_type)
+        filtered_receipts_cte = filtered_receipts_cte.filter(PaymentModel.type == payment_type)
+    if offset:
+        filtered_receipts_cte = filtered_receipts_cte.offset(offset)
 
-    filtered_receipts_cte = filtered_receipts_query.cte("filtered_receipts")
+    filtered_receipts_cte = filtered_receipts_cte.cte("filtered_receipts")
     query = (
         select(ReceiptModel)
         .join(filtered_receipts_cte, ReceiptModel.id == filtered_receipts_cte.c.receipt_id)
