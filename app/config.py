@@ -27,9 +27,16 @@ class AlchemySettings(BaseModel):
     max_overflow: int = 10
 
 
+class JWTSettings(BaseModel):
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+
+
 class Settings(BaseSettings):
     db: DatabaseSettings
     alchemy: AlchemySettings = AlchemySettings()
+    jwt: JWTSettings
 
     model_config = SettingsConfigDict(env_nested_delimiter="__", env_ignore_empty=True)
 
