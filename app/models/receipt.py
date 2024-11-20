@@ -8,15 +8,6 @@ from .product import Product, ProductCreate, ProductRead
 
 
 class ReceiptBase(BaseModel):
-    pass
-
-
-class Receipt(ReceiptBase):
-    id: int
-    products: list[Product]
-    payment: Payment
-    created_at: dt.datetime
-
     @computed_field
     def total(self) -> Decimal:
         return sum([product.total for product in self.products])
@@ -24,6 +15,13 @@ class Receipt(ReceiptBase):
     @computed_field
     def rest(self) -> Decimal:
         return self.payment.amount - self.total
+
+
+class Receipt(ReceiptBase):
+    id: int
+    products: list[Product]
+    payment: Payment
+    created_at: dt.datetime
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -38,11 +36,3 @@ class ReceiptRead(Receipt):
     products: list[ProductRead]
     payment: PaymentRead
     created_at: dt.datetime
-
-    @computed_field
-    def total(self) -> Decimal:
-        return sum([product.total for product in self.products])
-
-    @computed_field
-    def rest(self) -> Decimal:
-        return self.payment.amount - self.total

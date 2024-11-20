@@ -8,13 +8,13 @@ class ProductBase(BaseModel):
     price: Decimal
     quantity: int
 
-
-class Product(ProductBase):
-    id: int
-
     @computed_field
     def total(self) -> Decimal:
         return self.price * self.quantity
+
+
+class Product(ProductBase):
+    id: int
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -24,6 +24,4 @@ class ProductCreate(ProductBase):
 
 
 class ProductRead(ProductBase):
-    @computed_field
-    def total(self) -> Decimal:
-        return self.price * self.quantity
+    pass

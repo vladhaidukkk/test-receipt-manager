@@ -11,6 +11,13 @@ router = APIRouter(tags=["Receipts API"])
 
 @router.post("", response_model=ReceiptRead)
 async def create_receipt(current_user: CurrentUser, data: ReceiptCreate) -> Receipt:
+    if data.rest < 0:
+        # Ideally, this should be a validation error, but for the sake of simplicity 400 is sent.
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Payment amount cannot be less than the total cost",
+        )
+
     return await add_receipt(user_id=current_user.id, data=data)
 
 
