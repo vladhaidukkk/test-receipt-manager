@@ -1,1 +1,0 @@
-Receipt ID: {{ receipt_id }}

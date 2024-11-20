@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import contains_eager, joinedload, selectinload
+from sqlalchemy.orm import joinedload, selectinload
 
 from app.db.core import inject_session
 from app.db.models import PaymentModel, ProductModel, ReceiptModel

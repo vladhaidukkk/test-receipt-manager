@@ -9,7 +9,6 @@ dependencies = [
   "asyncpg>=0.30.0",
   "fastapi>=0.115.5",
   "inflect>=7.4.0",
-  "jinja2>=3.1.4",
   "passlib[bcrypt]>=1.7.4",
   "pydantic-settings>=2.6.1",
   "pydantic[email]>=2.9.2",

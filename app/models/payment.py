@@ -1,12 +1,12 @@
 from decimal import Decimal
-from enum import StrEnum
+from enum import StrEnum, auto
 
 from pydantic import BaseModel, ConfigDict
 
 
 class PaymentType(StrEnum):
-    CASH = "cash"
-    CASHLESS = "cashless"
+    CASH = auto()
+    CASHLESS = auto()
 
 
 class PaymentBase(BaseModel):

@@ -9,8 +9,6 @@ from app.utils.jwt_utils import decode_access_token
 
 
 async def get_current_user(bearer_token: Annotated[str, Header(alias="Authorization-Token")]) -> User:
-    return await get_user_by_id(id_=4)
-
     creds_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
